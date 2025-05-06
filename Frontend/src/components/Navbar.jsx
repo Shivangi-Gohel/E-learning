@@ -24,7 +24,7 @@ import {
 import { Separator } from "@radix-ui/react-dropdown-menu";
 
 const Navbar = () => {
-  const user = false; // Replace with actual user authentication logic
+  const user = true; // Replace with actual user authentication logic
   return (
     <div className="h-16 dark:bg-[#0A0A0A] bg-white border-b dark:border-b-gray-800 border-b-gray-200 fixed top-0 left-0 right-0 duration-300 z-10">
       {/* Desktop */}
