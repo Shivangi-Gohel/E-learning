@@ -1,6 +1,6 @@
 import {createApi, fetchBaseQuery} from '@reduxjs/toolkit/query/react';
 import { API_URL } from '../../../constant.js';
-import { userLoggedIn } from '../authSlice.js';
+import { userLoggedIn, userLoggedOut } from '../authSlice.js';
 
 const USER_API = `${API_URL}users/`;
 
@@ -63,6 +63,13 @@ export const authApi = createApi({
                 credentials: 'include',
             })
         }),
+        async onQueryStarted(arg, { dispatch, queryFulfilled }) {
+            try {
+                dispatch(userLoggedOut())
+            } catch (err) {
+                console.log(err);
+            }
+        }
     })
 });
 

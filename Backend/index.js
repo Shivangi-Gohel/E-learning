@@ -21,6 +21,9 @@ app.use(cors({
 import userRoute from './routes/user.route.js';
 app.use("/api/v1/users", userRoute);
 
+import courseRoute from './routes/course.route.js';
+app.use("/api/v1/courses", courseRoute);
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });

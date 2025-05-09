@@ -59,7 +59,7 @@ const Navbar = () => {
               <DropdownMenuTrigger asChild>
                 <Avatar>
                   <AvatarImage
-                    src="https://github.com/shadcn.png"
+                    src={user?.photoUrl || "https://github.com/shadcn.png"}
                     alt="@shadcn"
                   />
                   <AvatarFallback>CN</AvatarFallback>
@@ -73,15 +73,20 @@ const Navbar = () => {
                   <DropdownMenuItem onClick={() => navigate("/profile")}>Edit Profile</DropdownMenuItem>
                   <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
                 </DropdownMenuGroup>
-                <DropdownMenuSeparator />
-
-                <DropdownMenuItem>Dashboard</DropdownMenuItem>
+                {
+                  user.role == "instructor" && (
+                    <>
+                    <DropdownMenuSeparator />
+                    <DropdownMenuItem>Dashboard</DropdownMenuItem>
+                    </>
+                  )
+                }
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <div className="flex items-center gap-2">
-              <Button variant="outline">Login</Button>
-              <Button>Signup</Button>
+              <Button variant="outline" onClick={() => navigate("/login")}>Login</Button>
+              <Button onClick={() => navigate("/login")}>Signup</Button>
             </div>
           )}
 
