@@ -20,12 +20,12 @@ const AddCourse = () => {
 
   const createCourseHandler = async () => {
     await createCourse({ courseTitle, category });
-    alert(courseTitle + " " + category);
   }
 
   useEffect(() => {
     if(isSuccess){
       toast.success(data?.message || "Course created"); 
+      navigate("/admin/courses");
     }
   }, [isSuccess, error])
 
