@@ -18,15 +18,21 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useEditCourseMutation, useGetCourseByIdQuery } from "@/features/api/courseApi";
 import { Loader2 } from "lucide-react";
-import React, { use, useState } from "react";
-import { useNavigate } from "react-router-dom";
+import React, { useEffect, useState } from "react";
+import { useNavigate, useParams } from "react-router-dom";
+import { toast } from "sonner";
 
 const CourseTab = () => {
   const isPublished = true;
-  const isLoading = false;
   const navigate = useNavigate();
   const [previewThumbnail, setPreviewThumbnail] = useState("");
+
+  const params = useParams();
+  const courseId = params.courseId;
+  console.log("Course ID:", courseId);
+  
 
   const [input, setInput] = useState({
     courseTitle: "",
@@ -37,6 +43,27 @@ const CourseTab = () => {
     coursePrice: "",
     courseThumbnail: "",
   });
+
+  const [editCourse, {data, isLoading, isSuccess, error}] = useEditCourseMutation();
+
+  const {data: courseData, isLoading: isCourseLoading} = useGetCourseByIdQuery(courseId);
+
+  const course = courseData?.course;
+
+  useEffect(() => {
+    if(course) {
+      setInput({
+        courseTitle: course.courseTitle || "",
+        subTitle: course.subTitle || "",
+        description: course.description || "",
+        category: course.category || "",
+        courseLevel: course.courseLevel || "",
+        coursePrice: course.coursePrice || "",
+        courseThumbnail: "", // Reset thumbnail to null for file input
+      });
+      setPreviewThumbnail(course.courseThumbnail || "");
+    }
+  }, [course])
 
   const changeEventHandler = (e) => {
     const { name, value } = e.target;
@@ -72,13 +99,32 @@ const CourseTab = () => {
       fileReader.onloadend = () => {
         setPreviewThumbnail(fileReader.result);
       }
-      fileReader.readAsDataURL(file);
+      fileReader.readAsDataURL(file)
     }
   }
 
-  const updateCourseHandler = () => {
-    console.log("Course updated with data:", input);
+  const updateCourseHandler = async () => {
+    const formData = new FormData();
+    formData.append("courseTitle", input.courseTitle);
+    formData.append("subTitle", input.subTitle);
+    formData.append("description", input.description);
+    formData.append("category", input.category);
+    formData.append("courseLevel", input.courseLevel);
+    formData.append("coursePrice", input.coursePrice);
+    if (input.courseThumbnail) {
+      formData.append("courseThumbnail", input.courseThumbnail);
+    }
+    await editCourse({formData, courseId});
   }
+
+  useEffect(() => {
+    if(isSuccess) {
+      toast.success(data.message || "Course updated");
+    }
+    if(error) {
+      toast.error(error.data.message || "Failed to update course");
+    }
+  }, [isSuccess, error]);
 
   return (
     <div>
