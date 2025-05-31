@@ -46,7 +46,7 @@ const CourseTab = () => {
 
   const [editCourse, {data, isLoading, isSuccess, error}] = useEditCourseMutation();
 
-  const {data: courseData, isLoading: isCourseLoading} = useGetCourseByIdQuery(courseId);
+  const {data: courseData, isLoading: isCourseLoading} = useGetCourseByIdQuery(courseId, {skip: !courseId,refetchOnMountOrArgChange: true,});
 
   const course = courseData?.course;
 
@@ -63,7 +63,7 @@ const CourseTab = () => {
       });
       setPreviewThumbnail(course.courseThumbnail || "");
     }
-  }, [course])
+  }, [course]);
 
   const changeEventHandler = (e) => {
     const { name, value } = e.target;
@@ -120,11 +120,14 @@ const CourseTab = () => {
   useEffect(() => {
     if(isSuccess) {
       toast.success(data.message || "Course updated");
+      navigate("/admin/courses");
     }
     if(error) {
       toast.error(error.data.message || "Failed to update course");
     }
   }, [isSuccess, error]);
+
+  if(!courseId || isCourseLoading) return <Loader2 className="h-6 w-6 animate-spin" />;
 
   return (
     <div>
