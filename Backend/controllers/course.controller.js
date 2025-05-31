@@ -1,4 +1,5 @@
 import { Course } from "../models/course.model.js";
+import { Lecture } from "../models/lecture.model.js";
 import {deleteMediaFromCloudinary, uploadMedia} from "../utils/cloudinary.js";
 
 const createCourse = async (req, res) => {
@@ -140,4 +141,69 @@ const getCourseById = async (req, res) => {
     }
 }
 
-export {createCourse, getCreatorCourses, editCourse, getCourseById};
+const createLecture = async (req, res) => {
+    try {
+        const {courseId} = req.params;
+        const {lectureTitle} = req.body;
+
+        if(!lectureTitle || !courseId) {
+            return res.status(400)
+            .json({
+                success: false,
+                message: "Lecture title is required"
+            });
+        }
+
+        const lecture = await Lecture.create({lectureTitle});
+        const course = await Course.findById(courseId);
+
+        if(course) {
+            course.lectures.push(lecture._id);
+            await course.save();
+        }
+
+        return res.status(201)
+        .json({
+            success: true,
+            message: "Lecture created successfully",
+            lecture
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500)
+        .json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+}
+
+const getCourseLecture = async (req, res) => {
+    try {
+        const {courseId} = req.params;
+        const course = await Course.findById(courseId).populate("lectures");
+        if(!course) {
+            return res.status(404)
+            .json({
+                success: false,
+                message: "Course not found"
+            });
+        }
+        return res.status(200)
+        .json({
+            success: true,
+            message: "Lectures fetched successfully",
+            lectures: course.lectures
+        });
+    }
+    catch (error) {
+        console.log(error);
+        return res.status(500)
+        .json({
+            success: false,
+            message: "Internal server error"
+        });
+    }
+}
+
+export {createCourse, getCreatorCourses, editCourse, getCourseById, createLecture, getCourseLecture};
