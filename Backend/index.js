@@ -24,6 +24,9 @@ app.use("/api/v1/users", userRoute);
 import courseRoute from './routes/course.route.js';
 app.use("/api/v1/courses", courseRoute);
 
+import mediaRoute from './routes/media.route.js';
+app.use("/api/v1/media", mediaRoute);
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
