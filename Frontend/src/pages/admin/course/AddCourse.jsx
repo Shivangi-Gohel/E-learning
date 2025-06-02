@@ -1,7 +1,15 @@
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Select, SelectContent, SelectGroup, SelectItem, SelectLabel, SelectTrigger, SelectValue } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectLabel,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { useCreateCourseMutation } from "@/features/api/courseApi";
 import { Loader2 } from "lucide-react";
 import React, { use, useEffect, useState } from "react";
@@ -11,25 +19,32 @@ import { toast } from "sonner";
 const AddCourse = () => {
   const [courseTitle, setCourseTitle] = useState("");
   const [category, setCategory] = useState("");
-  const [createCourse, {data, isLoading, error, isSuccess}] = useCreateCourseMutation();
+  const [createCourse, { data, isLoading, error, isSuccess, refetch }] =
+    useCreateCourseMutation();
   const navigate = useNavigate();
 
   const getSelectedCategory = (value) => {
     setCategory(value);
-  }
+  };
 
   const createCourseHandler = async () => {
     await createCourse({ courseTitle, category });
-  }
+  };
 
   useEffect(() => {
-    if(isSuccess){
-      toast.success(data?.message || "Course created"); 
+    if (isSuccess) {
+      toast.success(data?.message || "Course created");
       navigate("/admin/courses");
     }
-  }, [isSuccess, error])
+  }, [isSuccess, error]);
 
-  
+  useEffect(() => {
+    if (location.state?.refetch) {
+      refetch();
+      window.history.replaceState({}, document.title);
+    }
+  }, [location.state]);
+
   return (
     <div className="flex-1 mx-10 mt-20">
       <div className="mb-4">
@@ -62,9 +77,15 @@ const AddCourse = () => {
                 <SelectLabel>Category</SelectLabel>
                 <SelectItem value="Next JS">Next JS</SelectItem>
                 <SelectItem value="Data Science">Data Science</SelectItem>
-                <SelectItem value="Frontend Development">Frontend Development</SelectItem>
-                <SelectItem value="Fullstack Development">Fullstack Development</SelectItem>
-                <SelectItem value="MERN Stack Development">MERN Stack Development</SelectItem>
+                <SelectItem value="Frontend Development">
+                  Frontend Development
+                </SelectItem>
+                <SelectItem value="Fullstack Development">
+                  Fullstack Development
+                </SelectItem>
+                <SelectItem value="MERN Stack Development">
+                  MERN Stack Development
+                </SelectItem>
                 <SelectItem value="Javascript">Javascript</SelectItem>
                 <SelectItem value="Python">Python</SelectItem>
                 <SelectItem value="Docker">Docker</SelectItem>
@@ -75,16 +96,18 @@ const AddCourse = () => {
           </Select>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="outline" onClick={() => navigate("/admin/courses")}>Back</Button>
+          <Button variant="outline" onClick={() => navigate("/admin/courses")}>
+            Back
+          </Button>
           <Button disabled={isLoading} onClick={createCourseHandler}>
-            {
-              isLoading ? (
-                <>
+            {isLoading ? (
+              <>
                 <Loader2 className="mr-2 h-4 w-4 animate-spin" />
                 Please Wait
-                </>
-              ) : "Create"
-            }
+              </>
+            ) : (
+              "Create"
+            )}
           </Button>
         </div>
       </div>

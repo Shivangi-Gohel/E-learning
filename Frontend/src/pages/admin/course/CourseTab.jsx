@@ -46,7 +46,7 @@ const CourseTab = () => {
 
   const [editCourse, {data, isLoading, isSuccess, error}] = useEditCourseMutation();
 
-  const {data: courseData, isLoading: isCourseLoading} = useGetCourseByIdQuery(courseId, {skip: !courseId,refetchOnMountOrArgChange: true,});
+  const {data: courseData, isLoading: isCourseLoading, refetch} = useGetCourseByIdQuery(courseId, {skip: !courseId,refetchOnMountOrArgChange: true});
 
   const course = courseData?.course;
 
@@ -126,6 +126,13 @@ const CourseTab = () => {
       toast.error(error.data.message || "Failed to update course");
     }
   }, [isSuccess, error]);
+
+  useEffect(() => {
+      if (location.state?.refetch) {
+        refetch();
+        window.history.replaceState({}, document.title);
+      }
+    }, [location.state]);
 
   if(!courseId || isCourseLoading) return <Loader2 className="h-6 w-6 animate-spin" />;
 

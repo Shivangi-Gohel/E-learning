@@ -58,7 +58,6 @@ const CourseTable = () => {
   if (isLoading) {
     return <div>Loading...</div>;
   }
-  console.log("data -> ",data);
   
   return (
     <div className="mt-20">

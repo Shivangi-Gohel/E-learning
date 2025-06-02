@@ -8,6 +8,9 @@ const lectureSchema = new mongoose.Schema({
     videoUrl: {
         type: String
     },
+    lectureId: {
+        type: String
+    },
     publicId: {
         type: String
     },

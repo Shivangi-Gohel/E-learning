@@ -12,6 +12,7 @@ const CreateLecture = () => {
   const [lectureTitle, setLectureTitle] = useState("");
   const params = useParams();
   const courseId = params.courseId;
+  const lectureId = params.lectureId;
 
   const navigate = useNavigate();
 
@@ -21,7 +22,7 @@ const CreateLecture = () => {
   
 
   const createLectureHandler = async () => {
-    await CreateLecture({ lectureTitle, courseId })
+    await CreateLecture({ lectureTitle, courseId, lectureId });
   }
 
   useEffect(() => {
