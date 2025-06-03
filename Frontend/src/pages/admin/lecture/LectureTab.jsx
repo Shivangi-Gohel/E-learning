@@ -9,11 +9,12 @@ import {
 import { Input } from "@/components/ui/input";
 import { Progress } from "@/components/ui/progress";
 import { Switch } from "@/components/ui/switch";
-import { useEditLectureMutation } from "@/features/api/courseApi";
+import { useEditLectureMutation, useGetLectureByIdQuery, useRemoveLectureMutation } from "@/features/api/courseApi";
 import { Label } from "@radix-ui/react-dropdown-menu";
 import axios from "axios";
+import { Loader2 } from "lucide-react";
 import React, { useEffect, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import { toast } from "sonner";
 
 const MEDIA_API = "http://localhost:8000/api/v1/media";
@@ -27,12 +28,26 @@ const LectureTab = () => {
   const [btnDisabled, setBtnDisabled] = useState(true);
   const params = useParams();
   const { courseId, lectureId } = params;
+  const navigate = useNavigate();
 
-  console.log("Lecture title", lectureTitle);
-  console.log("Upload video info", uploadVideoInfo);
+  const { data: lectureData } = useGetLectureByIdQuery(lectureId);
+  const lecture = lectureData?.lecture;
+
+  useEffect(() => {
+    if (lecture) {
+      setLectureTitle(lecture.lectureTitle);
+      setUploadVideoInfo({
+        videoUrl: lecture.videoInfo?.videoUrl,
+        publicId: lecture.videoInfo?.publicId,
+      });
+      setIsFree(lecture.isPreviewFree);
+    }
+  }, [lecture]);
 
   const [editLecture, { data, isLoading, error, isSuccess }] =
     useEditLectureMutation();
+
+  const [removeLecture, {data:removeData, isLoading:removeLoading, isSuccess:removeSuccess}] = useRemoveLectureMutation();
 
   const fileChangeHandler = async (e) => {
     const file = e.target.files[0];
@@ -46,7 +61,6 @@ const LectureTab = () => {
             setUploadProgress(Math.round((loaded * 100) / total));
           },
         });
-        console.log("Upload response", res);
 
         if (res.data.success) {
           setUploadVideoInfo({
@@ -64,7 +78,6 @@ const LectureTab = () => {
       }
     }
   };
-  console.log("Upload video info", uploadVideoInfo);
 
   const editLectureHandler = async () => {
     await editLecture({
@@ -76,6 +89,10 @@ const LectureTab = () => {
     });
   };
 
+  const removeLectureHandler = async () => {
+    await removeLecture(lectureId);
+  }
+
   useEffect(() => {
     if (isSuccess) {
       toast.success(data.message);
@@ -84,6 +101,14 @@ const LectureTab = () => {
       toast.error(error.data.message || "Something went wrong");
     }
   }, [isSuccess, error]);
+
+  useEffect(() => {
+    if (removeSuccess) {
+      toast.success("Lecture removed successfully");
+      navigate(`/admin/courses/${courseId}/lecture`);
+    }
+
+  }, [removeSuccess]);
 
   return (
     <Card>
@@ -95,7 +120,15 @@ const LectureTab = () => {
           </CardDescription>
         </div>
         <div className="flex items-center gap-2">
-          <Button variant="destructive">Remove Lecture</Button>
+          <Button disabled={removeLoading} variant="destructive" onClick={removeLectureHandler}>
+            {
+              removeLoading ? 
+              <>
+              <Loader2 className="animate-spin mr-2 h-4 w-4" />
+              Please wait
+              </> : "Remove Lecture"
+            }
+          </Button>
         </div>
       </CardHeader>
       <CardContent>

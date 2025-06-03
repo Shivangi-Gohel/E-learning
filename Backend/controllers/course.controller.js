@@ -139,47 +139,41 @@ const getCourseById = async (req, res) => {
 };
 
 const createLecture = async (req, res) => {
-  try {
-    const { courseId, lectureId } = req.params;
-    const { lectureTitle } = req.body;
-    console.log(lectureId);
-    
+    try {
+        const {courseId} = req.params;
+        const {lectureTitle} = req.body;
 
-    if (!lectureTitle || !courseId) {
-      return res.status(400).json({
-        success: false,
-        message: "Lecture title is required",
-      });
+        if(!lectureTitle || !courseId) {
+            return res.status(400)
+            .json({
+                success: false,
+                message: "Lecture title is required"
+            });
+        }
+
+        const lecture = await Lecture.create({lectureTitle});
+        const course = await Course.findById(courseId);
+
+        if(course) {
+            course.lectures.push(lecture._id);
+            await course.save();
+        }
+
+        return res.status(201)
+        .json({
+            success: true,
+            message: "Lecture created successfully",
+            lecture
+        });
+    } catch (error) {
+        console.log(error);
+        return res.status(500)
+        .json({
+            success: false,
+            message: "Internal server error"
+        });
     }
-
-    const existingLecture = await Lecture.findOne({ lectureId });
-
-    let lecture;
-    let course;
-
-    if (!existingLecture) {
-      lecture = await Lecture.create({ lectureTitle, lectureId });
-      course = await Course.findById(courseId);
-    }
-
-    if (course) {
-      course.lectures.push(lecture._id);
-      await course.save();
-    }
-
-    return res.status(201).json({
-      success: true,
-      message: "Lecture created successfully",
-      lecture,
-    });
-  } catch (error) {
-    console.log(error);
-    return res.status(500).json({
-      success: false,
-      message: "Internal server error",
-    });
-  }
-};
+} 
 
 const getCourseLecture = async (req, res) => {
   try {
@@ -220,10 +214,10 @@ const editLecture = async (req, res) => {
     if (lectureTitle) {
       lecture.lectureTitle = lectureTitle;
     }
-    if (videoInfo.videoUrl) {
+    if (videoInfo?.videoUrl) {
       lecture.videoUrl = videoInfo.videoUrl;
     }
-    if (videoInfo.publicId) {
+    if (videoInfo?.publicId) {
       lecture.publicId = videoInfo.publicId;
     }
 
@@ -307,6 +301,33 @@ const getLectureById = async (req, res) => {
   }
 };
 
+const togglePublishCourse = async (req, res) => {
+  try {
+    const { courseId } = req.params;
+    const {publish} = req.query;  // true or false
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found",
+      });
+    }
+    course.isPublished = publish === "true"; // convert string to boolean
+    await course.save();
+    return res.status(200).json({
+      success: true,
+      message: `Course ${publish ? "published" : "unpublished"} successfully`,
+      course,
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+}
+
 export {
   createCourse,
   getCreatorCourses,
@@ -317,4 +338,5 @@ export {
   editLecture,
   removeLecture,
   getLectureById,
+  togglePublishCourse
 };
