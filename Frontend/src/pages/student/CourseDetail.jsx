@@ -11,18 +11,23 @@ import {
 import { Separator } from "@/components/ui/separator";
 import {
   useEnrollCourseMutation,
-  useGetCourseByIdQuery
+  useGetCourseByIdQuery,
 } from "@/features/api/courseApi";
-import { useCheckIfPurchasedQuery, useCreateOrderMutation, useVerifyPaymentMutation } from "@/features/api/purchaseApi";
+import {
+  useCheckIfPurchasedQuery,
+  useCreateOrderMutation,
+  useVerifyPaymentMutation,
+} from "@/features/api/purchaseApi";
 import { BadgeInfo, Lock, PlayCircle } from "lucide-react";
 import React, { useEffect } from "react";
-import { useParams } from "react-router-dom";
+import ReactPlayer from "react-player";
+import { useNavigate, useParams } from "react-router-dom";
 
 const CourseDetail = () => {
-  const purchasedCourse = false;
-
   const params = useParams();
   const courseId = params.courseId;
+
+  const navigate = useNavigate();
 
   const {
     data: courseData,
@@ -36,7 +41,8 @@ const CourseDetail = () => {
   const [createOrder, { data, isLoading }] = useCreateOrderMutation();
   const [verifyPayment] = useVerifyPaymentMutation();
 
-  const {data: purchaseCheckData, isLoading: isCheckLoading} = useCheckIfPurchasedQuery(courseId);
+  const { data: purchaseCheckData, isLoading: isCheckLoading } =
+    useCheckIfPurchasedQuery(courseId);
 
   const [enrollCourse] = useEnrollCourseMutation();
 
@@ -86,7 +92,6 @@ const CourseDetail = () => {
             }
 
             await enrollCourse(courseId);
-
           } catch (verificationError) {
             console.error("Payment verification failed:", verificationError);
           }
@@ -104,11 +109,19 @@ const CourseDetail = () => {
     }
   };
 
+  const handleContinueCourse = async () => {
+    if(purchaseCheckData?.isPurchased) {
+      navigate(`/course-progress/${courseId}`);
+    }
+  }
+
   return (
     <div className="mt-20 space-y-5">
       <div className="bg-[#2D2F31] text-white">
         <div className="max-w-7xl mx-auto py-8 px-4 md:px-8 flex flex-col gap-2">
-          <h1 className="font-bold text-2xl md:text-3xl">{courseData?.course?.courseTitle}</h1>
+          <h1 className="font-bold text-2xl md:text-3xl">
+            {courseData?.course?.courseTitle}
+          </h1>
           <p className="text-base md:text-lg">{courseData?.course?.subTitle}</p>
           <p>
             Created By{" "}
@@ -126,12 +139,19 @@ const CourseDetail = () => {
       <div className="max-w-7xl mx-auto my-5 px-4 md:px-8 flex flex-col lg:flex-row justify-between gap-10">
         <div className="w-full lg:w-1/2 space-y-5">
           <h1 className="font-bold text-xl md:text-2xl">Description</h1>
-          <p className="text-sm" dangerouslySetInnerHTML={{ __html: courseData?.course?.description || "No description available." }}> 
-          </p>
+          <p
+            className="text-sm"
+            dangerouslySetInnerHTML={{
+              __html:
+                courseData?.course?.description || "No description available.",
+            }}
+          ></p>
           <Card>
             <CardHeader>
               <CardTitle>Course Content</CardTitle>
-              <CardDescription>{courseData?.course?.lectures.length} lectures</CardDescription>
+              <CardDescription>
+                {courseData?.course?.lectures.length} lectures
+              </CardDescription>
             </CardHeader>
             <CardContent className="space-y-3">
               {courseData?.course?.lectures.map((lecture, idx) => (
@@ -149,14 +169,16 @@ const CourseDetail = () => {
         <div className="w-full lg:w-1/3">
           <Card>
             <CardContent className="p-4 flex flex-col">
-              <div className="w-full aspect-video mb-4">React Player Video</div>
+              <div className="w-full aspect-video mb-4">
+                <ReactPlayer width="100%" height={"100%"} url={courseData?.course?.lectures[0].videoUrl} controls={true}></ReactPlayer>
+              </div>
               <h1>Lecture title</h1>
               <Separator className="my-2" />
               <h1 className="text-lg md:text-xl font-semibold">Course Price</h1>
             </CardContent>
             <CardFooter className="flex justify-center p-4">
               {purchaseCheckData?.isPurchased ? (
-                <Button className="w-full">Continue Course</Button>
+                <Button className="w-full" onClick={handleContinueCourse}>Continue Course</Button>
               ) : (
                 <Button
                   className="w-full"
