@@ -64,8 +64,6 @@ const verifyPayment = async (req, res) => {
     const { razorpayOrderId, razorpayPaymentId, razorpaySignature, courseId } =
       req.body;
     const userId = req.id;
-
-    console.log("userId:", userId);
     
 
     if (!razorpayPaymentId || !courseId || !userId) {
@@ -85,8 +83,6 @@ const verifyPayment = async (req, res) => {
         });
       }
 
-      console.log("Payment verified successfully for course:", course);
-
       const newPurchase = new PurchaseCourse({
         courseId,
         userId,
@@ -94,8 +90,6 @@ const verifyPayment = async (req, res) => {
         status: "completed",
         paymentId: razorpayPaymentId,
       });
-
-      log("New purchase created:", newPurchase);
 
       await newPurchase.save();
 
@@ -139,4 +133,30 @@ const isCoursePurchased = async (req, res) => {
   }
 };
 
-export { createOrder, verifyPayment, isCoursePurchased };
+const getAllPurchasedCourses = async (req, res) => {
+  try {
+    const userId = req.id;
+
+    if (!userId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID is required",
+      });
+    }
+
+    const purchases = await PurchaseCourse.find({ userId }).populate("courseId");
+
+    return res.status(200).json({
+      success: true,
+      purchases,
+    });
+  } catch (error) {
+    console.error("Error fetching purchased courses: ", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal Server Error",
+    });
+  }
+};  
+
+export { createOrder, verifyPayment, isCoursePurchased, getAllPurchasedCourses };

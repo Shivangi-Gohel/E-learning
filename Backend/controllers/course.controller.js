@@ -117,7 +117,7 @@ const editCourse = async (req, res) => {
 const getCourseById = async (req, res) => {
   try {
     const { courseId } = req.params;
-    const course = await Course.findById(courseId);
+    const course = await Course.findById(courseId).populate("creator", "name email").populate("lectures");
     if (!course) {
       return res.status(404).json({
         success: false,
@@ -350,6 +350,50 @@ const getPublishedCourses = async (req, res) => {
   }
 }
 
+const enrollStudentToCourse = async (req, res) => {
+  try {
+    const userId = req.id; // assuming you get this from `isAuthenticated` middleware
+    const { courseId } = req.params;
+
+    if (!userId || !courseId) {
+      return res.status(400).json({
+        success: false,
+        message: "User ID and Course ID are required",
+      });
+    }
+
+    const course = await Course.findById(courseId);
+    if (!course) {
+      return res.status(404).json({
+        success: false,
+        message: "Course not found",
+      });
+    }
+
+    // Check if already enrolled
+    if (course.enrolledStudents.includes(userId)) {
+      return res.status(400).json({
+        success: false,
+        message: "User already enrolled",
+      });
+    }
+
+    course.enrolledStudents.push(userId);
+    await course.save();
+
+    return res.status(200).json({
+      success: true,
+      message: "User enrolled successfully",
+    });
+  } catch (error) {
+    console.error("Error enrolling student: ", error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+  }
+};
+
 export {
   createCourse,
   getCreatorCourses,
@@ -361,5 +405,6 @@ export {
   removeLecture,
   getLectureById,
   togglePublishCourse,
-  getPublishedCourses
+  getPublishedCourses,
+  enrollStudentToCourse
 };

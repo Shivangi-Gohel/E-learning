@@ -101,6 +101,12 @@ export const courseApi = createApi({
       }),
       invalidatesTags: ["Refetch_Creator_Course"],
     }),
+    enrollCourse: builder.mutation({
+      query: (courseId) => ({
+        url: `enroll/${courseId}`,
+        method: "POST",
+      }),
+    }),
   }),
 });
 
@@ -115,5 +121,6 @@ export const {
   useEditLectureMutation,
   useRemoveLectureMutation,
   useGetLectureByIdQuery,
-  usePublishCourseMutation
+  usePublishCourseMutation,
+  useEnrollCourseMutation,
 } = courseApi;
