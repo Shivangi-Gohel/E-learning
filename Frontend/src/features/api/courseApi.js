@@ -1,6 +1,5 @@
 import { createApi, fetchBaseQuery } from "@reduxjs/toolkit/query/react";
 import { API_URL } from "../../../constant.js";
-import { use } from "react";
 
 const COURSE_API = `${API_URL}courses/`;
 

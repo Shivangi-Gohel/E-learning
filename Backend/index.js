@@ -30,6 +30,9 @@ app.use("/api/v1/media", mediaRoute);
 import purchaseCourseRoute from './routes/purchaseCourse.route.js';
 app.use("/api/v1/purchase", purchaseCourseRoute);
 
+import courseProgressRoute from './routes/courseProgress.route.js';
+app.use("/api/v1/progress", courseProgressRoute);
+
 app.listen(PORT, () => {
   console.log(`Server is running on http://localhost:${PORT}`);
 });
