@@ -31,6 +31,51 @@ const createCourse = async (req, res) => {
   }
 };
 
+const serachCourse = async (req, res) => {
+  try {
+    const {query= "", categories= [], sortByPrice=""} = req.query;
+    // create search query
+    const searchCriteria = {
+      isPublished: true,
+      $or: [
+        { courseTitle: { $regex: query, $options: "i" } }, // case-insensitive search
+        { subTitle: { $regex: query, $options: "i" } },
+        { category: { $regex: query, $options: "i" } }
+      ]
+    }
+
+    // if categories selected
+    if(categories.length > 0) {
+      searchCriteria.category = { $in: categories };
+    }
+
+    // define sorting order
+    const sortOptions = {};
+    if (sortByPrice === "low") {
+      sortOptions.coursePrice = 1; // ascending order
+    } else if (sortByPrice === "high") {
+      sortOptions.coursePrice = -1; // descending order
+    }
+
+    let courses = await Course.find(searchCriteria)
+      .populate({ path: "creator", select: "name photoUrl" })
+      .sort(sortOptions);
+
+    return res.status(200).json({
+      success: true,
+      message: "Courses fetched successfully",
+      courses: courses || [],
+    });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({
+      success: false,
+      message: "Internal server error",
+    });
+    
+  }
+}
+
 const getCreatorCourses = async (req, res) => {
   try {
     const userId = req.id;
@@ -396,6 +441,7 @@ const enrollStudentToCourse = async (req, res) => {
 
 export {
   createCourse,
+  serachCourse,
   getCreatorCourses,
   editCourse,
   getCourseById,
@@ -406,5 +452,5 @@ export {
   getLectureById,
   togglePublishCourse,
   getPublishedCourses,
-  enrollStudentToCourse
+  enrollStudentToCourse,
 };

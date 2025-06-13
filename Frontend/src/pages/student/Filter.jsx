@@ -9,7 +9,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { Separator } from "@/components/ui/separator";
-import React from "react";
+import React, { useState } from "react";
 
 const categories = [
   { id: "nextjs", label: "Next JS" },
@@ -25,18 +25,30 @@ const categories = [
   { id: "html", label: "HTML" },
 ];
 
-const Filter = () => {
-
+const Filter = ({ handleFilterChange }) => {
+  const [selectedCategories, setSelectedCategories] = useState([]);
+  const [sortByPrice, setSortByPrice] = useState("");
   const handleCategoryChange = (categoryId) => {
-    // Handle category change logic here
-    console.log(`Category changed: ${categoryId}`);
+    setSelectedCategories((prevCategories) => {
+      const newCategories = prevCategories.includes(categoryId)
+        ? prevCategories.filter((id) => id !== categoryId)
+        : [...prevCategories, categoryId];
+
+      handleFilterChange(newCategories, sortByPrice);
+      return newCategories;
+    });
+  };
+
+  const selectByPriceHandler = (value) => {
+    setSortByPrice(value);
+    handleFilterChange(selectedCategories, value);
   }
 
   return (
     <div className="w-full md:w-[20%]">
       <div className="flex items-center justify-between">
         <h1 className="font-semibold text-lg md:text-xl">Filter Options</h1>
-        <Select>
+        <Select onValueChange={selectByPriceHandler} className="w-40">
           <SelectTrigger>
             <SelectValue placeholder="Sort By" />
           </SelectTrigger>
@@ -52,14 +64,18 @@ const Filter = () => {
       <Separator className="my-4" />
       <div>
         <h1 className="font-semibold mb-2">CATEGORY</h1>
-        {
-          categories.map((category) => (
-            <div className="flex items-center space-x-2 my-2">
-              <Checkbox id={category.id} onCheckedChange={() => handleCategoryChange(category.id)} className='border border-gray-700' />
-              <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">{category.label}</label>
-            </div>
-          ))
-        }
+        {categories.map((category) => (
+          <div className="flex items-center space-x-2 my-2">
+            <Checkbox
+              id={category.id}
+              onCheckedChange={() => handleCategoryChange(category.id)}
+              className="border border-gray-700"
+            />
+            <label className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+              {category.label}
+            </label>
+          </div>
+        ))}
       </div>
     </div>
   );
