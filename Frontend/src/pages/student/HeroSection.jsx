@@ -12,7 +12,7 @@ const HeroSection = () => {
     if(serachQuery.trim() !== "") {
       navigate(`/courses/search/?query=${serachQuery}`)
     }
-    serachQuery("");
+    setSearchQuery("");
   }
   return (
     <div className='relative bg-gradient-to-r from-blue-500 to bg-indigo-600 dark:from-gray-800 dark:to-gray-900 py-24 px-4 text-center'>
@@ -30,7 +30,7 @@ const HeroSection = () => {
             />
             <Button type='submit' className="bg-blue-600 dark:bg-blue-700 text-white px-6 py-3 rounded-r-full hover:bg-blue-800">Search</Button>
         </form>
-        <Button className="bg-white dark:bg-gray-800 text-blue-600 rounded-full hover:bg-gray-200">Explore Courses</Button>
+        <Button onClick={() => navigate(`/courses/search?query`)} className="bg-white dark:bg-gray-800 text-blue-600 rounded-full hover:bg-gray-200">Explore Courses</Button>
 
       </div>
     </div>

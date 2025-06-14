@@ -1,12 +1,13 @@
-import React from 'react'
+import React, { useState } from 'react'
 import Filter from './Filter'
 import SearchResult from './SearchResult'
 import { useGetSearchCourseQuery } from '@/features/api/courseApi';
 import { Skeleton } from '@/components/ui/skeleton';
-import { useSearchParams } from 'react-router-dom';
+import { Link, useSearchParams } from 'react-router-dom';
+import { AlertCircle } from 'lucide-react';
+import { Button } from '@/components/ui/button';
 
 const SearchPage = () => {
-  const isEmpty = false;
   const [serachParams] = useSearchParams();
   const query = serachParams.get("query");
   const [selectedCategories, setSelectedCategories] = useState([]);
@@ -16,6 +17,8 @@ const SearchPage = () => {
     categories: selectedCategories,
     sortByPrice: sortByPrice
   });
+
+  const isEmpty = !isLoading &&  data?.courses.length === 0;
 
   const handleFilterChange = (categories, price) => {
     setSelectedCategories(categories);
@@ -40,11 +43,7 @@ const SearchPage = () => {
             ) : isEmpty ? (
               <CourseNotFound/>
             ) :
-            (
-              [1,2,3].map((_, idx) => (
-                <SearchResult key={idx} />
-              ))
-            )
+            data?.courses?.map((course) => (<SearchResult key={course._id} course={course} />))
           }
         </div>
       </div>

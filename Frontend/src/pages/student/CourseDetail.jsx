@@ -37,7 +37,7 @@ const CourseDetail = () => {
     skip: !courseId,
     refetchOnMountOrArgChange: true,
   });
-
+  
   const [createOrder, { data, isLoading }] = useCreateOrderMutation();
   const [verifyPayment] = useVerifyPaymentMutation();
 
@@ -73,7 +73,7 @@ const CourseDetail = () => {
 
       const paymentObject = new window.Razorpay({
         key: "rzp_test_EeIxqirfrx0Q3k",
-        ...orderRes, // should contain order_id, amount, currency, etc.
+        ...orderRes.order, // should contain order_id, amount, currency, etc.
 
         handler: async function (response) {
           console.log("Payment successful:", response);

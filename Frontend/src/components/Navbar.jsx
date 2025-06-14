@@ -34,6 +34,8 @@ const Navbar = () => {
 
   const handleLogout = async () => {
     await logoutUser();
+    navigate("/");
+    window.location.reload();
   };
 
   useEffect(() => {
@@ -79,7 +81,9 @@ const Navbar = () => {
                   user.role == "instructor" && (
                     <>
                     <DropdownMenuSeparator />
-                    <DropdownMenuItem onClick={() => navigate("/admin")}>Dashboard</DropdownMenuItem>
+                    <DropdownMenuItem>
+                      <div onClick={() => navigate("/admin/dashboard")}>Dashboard</div>
+                    </DropdownMenuItem>
                     </>
                   )
                 }
