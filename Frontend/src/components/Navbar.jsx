@@ -28,9 +28,9 @@ import { toast } from "sonner";
 import { useSelector } from "react-redux";
 
 const Navbar = () => {
-  const {user} = useSelector((state) => state.auth);
+  const { user } = useSelector((state) => state.auth);
   const navigate = useNavigate();
-  const [logoutUser, {data, isSuccess}] = useLogoutUserMutation();
+  const [logoutUser, { data, isSuccess }] = useLogoutUserMutation();
 
   const handleLogout = async () => {
     await logoutUser();
@@ -39,17 +39,20 @@ const Navbar = () => {
   };
 
   useEffect(() => {
-    if(isSuccess) {
+    if (isSuccess) {
       toast.success(data?.message || "Logged out successfully");
       navigate("/login");
     }
-  }, [isSuccess])
+  }, [isSuccess]);
 
   return (
-    <div className="h-16 dark:bg-[#0A0A0A] bg-white border-b dark:border-b-gray-800 border-b-gray-200 fixed top-0 left-0 right-0 duration-300 z-10">
+    <div className="h-16 dark:bg-[#020817] bg-white border-b dark:border-b-gray-800 border-b-gray-200 fixed top-0 left-0 right-0 duration-300 z-10">
       {/* Desktop */}
       <div className="max-w-7xl mx-auto hidden md:flex justify-between items-center gap-10 h-full">
-        <div className="flex items-center gap-2 cursor-pointer" onClick={() => navigate("/")}>
+        <div
+          className="flex items-center gap-2 cursor-pointer"
+          onClick={() => navigate("/")}
+        >
           <School size={"30"} />
           <h1 className="hidden md:block font-extrabold text-2xl">
             E-learning
@@ -61,37 +64,45 @@ const Navbar = () => {
               <DropdownMenuTrigger asChild>
                 <button className="focus:outline-none">
                   <Avatar>
-                  <AvatarImage
-                    src={user?.photoUrl || "https://github.com/shadcn.png"}
-                    alt="@shadcn"
-                  />
-                  <AvatarFallback>CN</AvatarFallback>
-                </Avatar>
+                    <AvatarImage
+                      src={user?.photoUrl || "https://github.com/shadcn.png"}
+                      alt="@shadcn"
+                    />
+                    <AvatarFallback>CN</AvatarFallback>
+                  </Avatar>
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent className="w-56">
                 <DropdownMenuLabel>My Account</DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                  <DropdownMenuItem onClick={() => navigate("/my-learning")}>My learning</DropdownMenuItem>
-                  <DropdownMenuItem onClick={() => navigate("/profile")}>Edit Profile</DropdownMenuItem>
-                  <DropdownMenuItem onClick={handleLogout}>Log out</DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/my-learning")}>
+                    My learning
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={() => navigate("/profile")}>
+                    Edit Profile
+                  </DropdownMenuItem>
+                  <DropdownMenuItem onClick={handleLogout}>
+                    Log out
+                  </DropdownMenuItem>
                 </DropdownMenuGroup>
-                {
-                  user.role == "instructor" && (
-                    <>
+                {user?.role == "instructor" && (
+                  <>
                     <DropdownMenuSeparator />
                     <DropdownMenuItem>
-                      <div onClick={() => navigate("/admin/dashboard")}>Dashboard</div>
+                      <div onClick={() => navigate("/admin/dashboard")}>
+                        Dashboard
+                      </div>
                     </DropdownMenuItem>
-                    </>
-                  )
-                }
+                  </>
+                )}
               </DropdownMenuContent>
             </DropdownMenu>
           ) : (
             <div className="flex items-center gap-2">
-              <Button variant="outline" onClick={() => navigate("/login")}>Login</Button>
+              <Button variant="outline" onClick={() => navigate("/login")}>
+                Login
+              </Button>
               <Button onClick={() => navigate("/login")}>Signup</Button>
             </div>
           )}
@@ -101,7 +112,7 @@ const Navbar = () => {
       </div>
       {/* Mobile */}
       <div className="flex md:hidden items-center justify-between px-4 h-full ">
-        <h1 className="font-extrabold text-2xl">E-learning</h1>
+        <h1 className="font-extrabold text-2xl" onClick={() => navigate("/")}>E-learning</h1>
         <MobileNavbar />
       </div>
     </div>
@@ -111,8 +122,24 @@ const Navbar = () => {
 export default Navbar;
 
 const MobileNavbar = () => {
-  const role = "instructor"; // Replace with actual user role logic
-  return (
+  const { user } = useSelector((state) => state.auth);
+  const navigate = useNavigate();
+  const [logoutUser, { data, isSuccess }] = useLogoutUserMutation();
+
+  const handleLogout = async () => {
+    await logoutUser();
+    navigate("/");
+    window.location.reload();
+  };
+
+  useEffect(() => {
+    if (isSuccess) {
+      toast.success(data?.message || "Logged out successfully");
+      navigate("/login");
+    }
+  }, [isSuccess]);
+
+  return user ? (
     <Sheet>
       <SheetTrigger asChild>
         <Button
@@ -124,24 +151,41 @@ const MobileNavbar = () => {
         </Button>
       </SheetTrigger>
       <SheetContent className="flex !flex-col">
-        <SheetHeader className="flex flex-row items-center justify-between mt-2">
-          <SheetTitle className="text-3xl mt-6">E-learning</SheetTitle>
+        <SheetHeader className="flex flex-row items-center justify-between mt-6">
+          <SheetTitle className="text-3xl">E-learning</SheetTitle>
           <DarkMode />
         </SheetHeader>
         <Separator className="mr-2" />
-        <nav className="flex flex-col space-y-4 ml-4 text-xl">
-          <span>My learning</span>
-          <span>Edit Profile</span>
-          <p>Log out</p>
+        <nav className="flex flex-col space-y-4 ml-4 text-xl mt-4">
+          <SheetClose asChild>
+            <span onClick={() => navigate("/my-learning")}>My learning</span>
+          </SheetClose>
+
+          <SheetClose asChild>
+            <span onClick={() => navigate("/profile")}>Edit Profile</span>
+          </SheetClose>
+
+          <SheetClose asChild>
+            <p onClick={handleLogout}>Log out</p>
+          </SheetClose>
         </nav>
-        {role == "instructor" && (
+        {user?.role == "instructor" && (
           <SheetFooter className="mt-2">
             <SheetClose asChild>
-              <Button className="p-4" type="submit">Dashboard</Button>
+              <Button className="p-4" type="submit" onClick={() => navigate("/admin/dashboard")}>
+                Dashboard
+              </Button>
             </SheetClose>
           </SheetFooter>
         )}
       </SheetContent>
     </Sheet>
+  ) : (
+    <div className="flex items-center gap-1">
+      <Button variant="outline" onClick={() => navigate("/login")}>
+        Login
+      </Button>
+      <Button onClick={() => navigate("/login")}>Signup</Button>
+    </div>
   );
 };

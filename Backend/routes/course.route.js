@@ -7,7 +7,7 @@ const router = express.Router();
 
 router.route("/").post(isAuthenticated, createCourse);
 router.route("/search").get(isAuthenticated, serachCourse);
-router.route("/published-courses").get(isAuthenticated, getPublishedCourses);
+router.route("/published-courses").get(getPublishedCourses);
 router.route("/").get(isAuthenticated, getCreatorCourses);
 router.route("/:courseId").put(isAuthenticated, upload.single("courseThumbnail"), editCourse)
 router.route("/:courseId").get(isAuthenticated, getCourseById);
