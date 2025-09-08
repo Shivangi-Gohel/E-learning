@@ -14,7 +14,7 @@ const PORT = process.env.PORT || 8000;
 app.use(express.json());
 app.use(cookieParser());
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: ["http://localhost:5173", "https://e-learning-eight-lac.vercel.app", "https://s-e-learning.vercel.app"],
   credentials: true,
 }));
 
