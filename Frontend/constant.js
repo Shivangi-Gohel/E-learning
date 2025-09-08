@@ -1,1 +1,1 @@
-export const API_URL = "https://e-learning-1-y34b.onrender.com/api/v1/";
+export const API_URL = "https://e-learning-1-8phb.onrender.com/api/v1/";
